@@ -4,4 +4,6 @@ version = "0.1.0"
 authors = ["aswaving <aw001@swavings.nl>"]
 
 [dependencies]
+
+[dev-dependencies]
 quickcheck = "0.4"
