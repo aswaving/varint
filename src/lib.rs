@@ -1,12 +1,52 @@
+//! This crate contains traits to encode and decode to and from VarInt.
+//!
+//! ## Encoding
+//! Signed
+//!
+//! ```
+//!    use varint::VarIntEncode;
+//!    assert_eq!((-300i32).to_varint(), vec![215, 4]);
+//!
+//! ```
+//!
+//! Unsigned
+//!
+//! ```
+//!    use varint::VarIntEncode;
+//!    assert_eq!(300u32.to_varint(), vec![172, 2]);
+//!
+//! ```
+//!
+//!
+//! ## Decoding
+//! Signed
+//!
+//! ```
+//!    use varint::VarIntDecode;
+//!    assert_eq!(-300i32, i32::from_varint(&vec![215, 4]));
+//!
+//! ```
+//!
+//! Unsigned
+//!
+//! ```
+//!    use varint::VarIntDecode;
+//!    assert_eq!(300u32, u32::from_varint(&vec![172, 2]));
+//!
+//! ```
+//!
+/// Trait to encode the type into a VarInt.
 ///
+/// ZigZag encoding is used for signed integers to reduce the number of bytes in the varint
+/// (without it, 10 bytes would be needed in the varint for all negative values).
 pub trait VarIntEncode {
-    /// Encodes the type into a VarInt
     fn to_varint(&self) -> Vec<u8>;
 }
 
+/// Trait to decode a byte array into the type.
+///
+/// Warning: overflow of the target type is not detected!
 pub trait VarIntDecode {
-    /// Decodes a byte array into the type
-    /// Warning: overflow of the target type is not detected!
     fn from_varint(data: &[u8]) -> Self;
 }
 
@@ -44,6 +84,8 @@ macro_rules! impl_varint_signed {
         }
     )
 }
+
+/// Decodes an unsigned 64bit integer into a varint.
 pub fn encode(value: u64) -> Vec<u8> {
     let mut value = value;
     let mut output = Vec::<u8>::with_capacity(8);
@@ -55,7 +97,7 @@ pub fn encode(value: u64) -> Vec<u8> {
     output
 }
 
-/// Decodes the byte array into an unsigned 64bit integer.
+/// Decodes a byte array into an unsigned 64bit integer.
 pub fn decode(data: &[u8]) -> u64 {
     let mut output = 0u64;
     for (i, b) in data.into_iter().enumerate() {
@@ -86,16 +128,6 @@ mod tests {
     #[test]
     fn cafe_encode() {
         assert_eq!(0xcafeu16.to_varint(), vec![254, 149, 3]);
-    }
-
-    #[test]
-    fn encode_300_unsigned() {
-        assert_eq!(300u16.to_varint(), vec![172, 2]);
-    }
-
-    #[test]
-    fn encode_minus_300_signed() {
-        assert_eq!((-300i16).to_varint(), 599u16.to_varint());
     }
 
     quickcheck! {
