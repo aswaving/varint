@@ -1,0 +1,7 @@
+[package]
+name = "varint"
+version = "0.1.0"
+authors = ["aswaving <aw001@swavings.nl>"]
+
+[dependencies]
+quickcheck = "0.4"
