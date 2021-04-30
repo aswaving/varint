@@ -100,7 +100,7 @@ pub fn encode(value: u64) -> Vec<u8> {
 /// Decodes a byte array into an unsigned 64bit integer.
 pub fn decode(data: &[u8]) -> u64 {
     let mut output = 0u64;
-    for (i, b) in data.into_iter().enumerate() {
+    for (i, b) in data.iter().enumerate() {
         output |= ((b & 127) as u64) << (7 * i);
         if (b & 0x80) != 0x80 {
             // stop when Most Significant Bit not set (last byte)
