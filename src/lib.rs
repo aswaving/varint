@@ -55,7 +55,7 @@ macro_rules! impl_varint_unsigned {
     (
         impl VarIntEncode for $t {
             fn to_varint(&self) -> Vec<u8> {
-                encode(*self as u64)
+                encode(*self as u128)
             }
         }
         impl VarIntDecode for $t {
@@ -71,14 +71,14 @@ macro_rules! impl_varint_signed {
     (
         impl VarIntEncode for $t {
             fn to_varint(&self) -> Vec<u8> {
-                let value = *self as i64;
+                let value = *self as i128;
                 let value = (value << 1) ^ (value >> 63);
-                encode(value as u64)
+                encode(value as u128)
             }
         }
         impl VarIntDecode for $t {
             fn from_varint(data: &[u8]) -> Self {
-                let value = decode(data) as i64;
+                let value = decode(data) as i128;
                 ((value >> 1) ^ (-(value & 1))) as Self
             }
         }
@@ -86,7 +86,7 @@ macro_rules! impl_varint_signed {
 }
 
 /// Decodes an unsigned 64bit integer into a varint.
-pub fn encode(value: u64) -> Vec<u8> {
+pub fn encode(value: u128) -> Vec<u8> {
     let mut value = value;
     let mut output = Vec::<u8>::with_capacity(8);
     while value > 127 {
@@ -98,10 +98,10 @@ pub fn encode(value: u64) -> Vec<u8> {
 }
 
 /// Decodes a byte array into an unsigned 64bit integer.
-pub fn decode(data: &[u8]) -> u64 {
-    let mut output = 0u64;
+pub fn decode(data: &[u8]) -> u128 {
+    let mut output: u128 = 0;
     for (i, b) in data.iter().enumerate() {
-        output |= ((b & 127) as u64) << (7 * i);
+        output |= ((b & 127) as u128) << (7 * i);
         if (b & 0x80) != 0x80 {
             // stop when Most Significant Bit not set (last byte)
             break;
